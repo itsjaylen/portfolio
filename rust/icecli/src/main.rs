@@ -1,18 +1,21 @@
-mod user;
+mod commands;
 
-use user::args::EntityType;
-use user::args::RustflixArgs;
 use clap::Parser;
-use user::ops::user_ops::handle_user_command;
-use user::ops::video_ops::handle_video_command;
-use user::ops::view_ops::handle_view_command;
+
+use commands::args::{ CommandArgs, EntityCommands };
+
+use commands::user::handle_user_command;
+use commands::video::handle_video_command;
+use commands::view::handle_view_command;
 
 fn main() {
-    let args = RustflixArgs::parse();
+    let cli = CommandArgs::parse();
 
-    match args.entity_type {
-        EntityType::User(user) => handle_user_command(user),
-        EntityType::Video(video) => handle_video_command(video),
-        EntityType::View(view) => handle_view_command(view),
-    };
+
+    // Register Command modules here
+    match cli.entity_type {
+        EntityCommands::User(user) => handle_user_command(user),
+        EntityCommands::Video(video) => handle_video_command(video),
+        EntityCommands::View(view) => handle_view_command(view),
+    }
 }

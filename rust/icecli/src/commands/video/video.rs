@@ -1,5 +1,9 @@
-use crate::user::args::{CreateVideo, DeleteEntity, UpdateVideo, VideoCommand, VideoSubcommand};
+use super::{
+    args::{ VideoCommand, VideoSubcommand },
+    modules::{ create::CreateVideo, delete::DeleteEntity, update::UpdateVideo },
+};
 
+// Handles all video subcommands
 pub fn handle_video_command(video: VideoCommand) {
     let command = video.command;
     match command {
@@ -17,6 +21,8 @@ pub fn handle_video_command(video: VideoCommand) {
         }
     }
 }
+
+// Commands ran handlers
 
 pub fn create_video(video: CreateVideo) {
     println!("Creating video: {:?}", video);

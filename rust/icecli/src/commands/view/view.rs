@@ -1,5 +1,6 @@
-use crate::user::args::{CreateView, ViewCommand, ViewSubcommand};
+use super::{ args::{ ViewCommand, ViewSubcommand }, modules::create::CreateView };
 
+// Handles all view subcommands
 pub fn handle_view_command(view: ViewCommand) {
     let command = view.command;
     match command {
@@ -14,6 +15,8 @@ pub fn handle_view_command(view: ViewCommand) {
         }
     }
 }
+
+// Commands ran handlers
 
 fn create_view(new_view: CreateView) {
     println!("Creating view: {:?}", new_view);

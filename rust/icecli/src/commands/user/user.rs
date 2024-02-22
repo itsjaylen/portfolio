@@ -1,5 +1,9 @@
-use crate::user::args::{CreateUser, DeleteEntity, UpdateUser, UserCommand, UserSubcommand};
+use super::{
+    args::{ UserCommand, UserSubcommand },
+    modules::{ create::CreateUser, delete::DeleteEntity, update::UpdateUser },
+};
 
+// Handles all the user subcommands
 pub fn handle_user_command(user: UserCommand) {
     let command = user.command;
     match command {
@@ -18,6 +22,8 @@ pub fn handle_user_command(user: UserCommand) {
     }
 }
 
+// Commands ran handlers
+
 fn create_user(user: CreateUser) {
     println!("Creating user: {:?}", user);
 }
@@ -27,7 +33,7 @@ fn update_user(user: UpdateUser) {
 }
 
 fn delete_user(user: DeleteEntity) {
-    println!("Deleting user: {:?}", user);
+    println!("Deleting  user: {:?}", user);
 }
 
 fn show_users() {
