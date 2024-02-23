@@ -4,6 +4,7 @@ use crate::{
     commands::user::args::UserCommand,
     commands::video::args::VideoCommand,
     commands::view::args::ViewCommand,
+    commands::developer::args::DeveloperCommand,
 };
 
 // Register the main entity here that handles all the args.
@@ -18,11 +19,18 @@ pub struct CommandArgs {
 #[derive(Debug, Subcommand)]
 pub enum EntityCommands {
     /// Create, update, delete or show users
+    #[clap(hide = true)]
     User(UserCommand),
 
     /// Create, update, delete or show videos
+    #[clap(hide = true)]
     Video(VideoCommand),
 
     /// Create or show views
+    #[clap(hide = true)]
     View(ViewCommand),
+
+    /// Developer Commands for testing
+    #[clap(alias = "dev", alias = "d", hide = false)]
+    Developer(DeveloperCommand),
 }
