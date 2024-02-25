@@ -12,6 +12,14 @@ pub struct Preferences {
     pub debug: bool,
     pub auto_save: bool,
     pub debug_logging: bool,
+    pub error_logging: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Server {
+    pub enabled: bool,
+    pub port: u16,
+    pub debug: bool,
 }
 
 impl Default for Preferences {
@@ -21,6 +29,17 @@ impl Default for Preferences {
             debug: true,
             auto_save: false,
             debug_logging: true,
+            error_logging: true,
+        }
+    }
+}
+
+impl Default for Server {
+    fn default() -> Self {
+        Server {
+            enabled: true,
+            port: 1080,
+            debug: true,
         }
     }
 }
@@ -28,22 +47,24 @@ impl Default for Preferences {
 #[derive(Debug, Deserialize)]
 pub struct AppConfig {
     pub preferences: Preferences,
+    pub server: Server,
 }
 
 impl Default for AppConfig {
     fn default() -> Self {
         AppConfig {
             preferences: Preferences::default(),
+            server: Server::default(),
         }
     }
 }
 
 impl AppConfig {
-    pub fn load_config() -> Preferences {
+    pub fn load_config() -> AppConfig {
         dotenv().ok();
         let debug = env::var("DEBUG").unwrap_or_default().parse().unwrap_or(false);
 
-        if debug == true {
+        if debug {
             println!("{:?}", debug);
         } else {
             if let Some(home_dir) = env::var_os("HOME") {
@@ -68,10 +89,24 @@ impl AppConfig {
                                 auto_save: config
                                     .get_bool("preferences.auto_save")
                                     .unwrap_or(false),
-                                debug_logging: config.get_bool("debug_logging").unwrap_or(false),
+                                debug_logging: config
+                                    .get_bool("preferences.debug_logging")
+                                    .unwrap_or(false),
+                                error_logging: config
+                                    .get_bool("preferences.error_logging")
+                                    .unwrap_or(false),
                             };
 
-                            return preferences;
+                            let server = Server {
+                                enabled: config.get_bool("server.enabled").unwrap_or(false),
+                                port: config.get_int("server.port").unwrap_or(0) as u16,
+                                debug: config.get_bool("server.debug").unwrap_or(false),
+                            };
+
+                            return AppConfig {
+                                preferences,
+                                server,
+                            };
                         }
                         Err(e) => {
                             eprintln!("Error building config: {}", e);
@@ -84,6 +119,6 @@ impl AppConfig {
         }
 
         // Return the default AppConfig if there was an issue with loading the configuration
-        Preferences::default()
+        AppConfig::default()
     }
 }

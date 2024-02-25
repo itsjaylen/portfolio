@@ -14,4 +14,16 @@ pub struct DeveloperCommand {
 pub enum DeveloperSubcommand {
     /// Run test command
     Test(Test),
+
+    /// Triggers dummy error
+    TriggerError,
+}
+
+/// Register Errors here
+#[derive(Debug)]
+#[allow(dead_code)]
+pub enum DeveloperError {
+    TestError,
+    TriggerError(String), 
+    FileError(String),    
 }
