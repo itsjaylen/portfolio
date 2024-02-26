@@ -1,48 +1,12 @@
-use std::env;
-use std::path::Path;
-use dotenvy::dotenv;
+use std::{ env, path::Path };
+
 use config::{ Config, File, FileFormat };
+use dotenvy::dotenv;
 use serde::Deserialize;
 
-use crate::utils::file_utils::FileUtils;
+use crate::utils::{file_utils::FileUtils, utils::is_debug_mode};
 
-#[derive(Debug, Deserialize)]
-pub struct Preferences {
-    pub theme: String,
-    pub debug: bool,
-    pub auto_save: bool,
-    pub debug_logging: bool,
-    pub error_logging: bool,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Server {
-    pub enabled: bool,
-    pub port: u16,
-    pub debug: bool,
-}
-
-impl Default for Preferences {
-    fn default() -> Self {
-        Preferences {
-            theme: String::from("Dark"),
-            debug: true,
-            auto_save: false,
-            debug_logging: true,
-            error_logging: true,
-        }
-    }
-}
-
-impl Default for Server {
-    fn default() -> Self {
-        Server {
-            enabled: true,
-            port: 1080,
-            debug: true,
-        }
-    }
-}
+use super::{ preferences::Preferences, server::Server };
 
 #[derive(Debug, Deserialize)]
 pub struct AppConfig {
@@ -62,21 +26,20 @@ impl Default for AppConfig {
 impl AppConfig {
     pub fn load_config() -> AppConfig {
         dotenv().ok();
-        let debug = env::var("DEBUG").unwrap_or_default().parse().unwrap_or(false);
 
-        if debug {
-            println!("{:?}", debug);
+        if is_debug_mode() {
+            println!("Running in debug mode");
         } else {
             if let Some(home_dir) = env::var_os("HOME") {
                 let config_dir = Path::new(&home_dir).join(".icecli");
-                let config_file = format!("{}/{}", config_dir.to_string_lossy(), "config.ini");
+                let config_file = format!("{}/{}", config_dir.to_string_lossy(), "config.toml");
 
                 if let Some(config_dir_str) = config_dir.to_str() {
                     let _ = FileUtils::directory_exists(config_dir_str, true);
                     let _ = FileUtils::file_exists(&config_file, true);
 
                     let builder = Config::builder()
-                        .add_source(File::new(&config_file, FileFormat::Ini))
+                        .add_source(File::new(&config_file, FileFormat::Toml))
                         .set_override("override", "1");
 
                     match builder.expect("Failed to build config").build() {
@@ -121,4 +84,6 @@ impl AppConfig {
         // Return the default AppConfig if there was an issue with loading the configuration
         AppConfig::default()
     }
+    
+
 }

@@ -28,15 +28,13 @@ impl FileUtils {
 
         if path.exists() {
             Ok(true)
-        } else {
-            if create_if_not_exist {
-                match fs::create_dir(path) {
-                    Ok(_) => Ok(false),
-                    Err(err) => Err(err),
-                }
-            } else {
-                Ok(false)
+        } else if create_if_not_exist {
+            match fs::create_dir_all(path) {
+                Ok(_) => Ok(false),
+                Err(err) => Err(err),
             }
+        } else {
+            Ok(false)
         }
     }
 }

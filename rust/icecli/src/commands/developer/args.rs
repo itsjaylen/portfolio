@@ -25,5 +25,6 @@ pub enum DeveloperSubcommand {
 pub enum DeveloperError {
     TestError,
     TriggerError(String), 
-    FileError(String),    
+    FileError(String),
+    ConfigError(String),    
 }

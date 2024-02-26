@@ -1,0 +1,1 @@
+pub const HOME_LOG_DIRECTORY: &str = ".icecli/logs";

@@ -1,20 +1,34 @@
 use std::fs::{ self, OpenOptions };
 
 use chrono::Local;
+use dotenvy::dotenv;
 use fern::{ colors::{ Color, ColoredLevelConfig }, Dispatch };
 
-use super::config::Preferences;
+use crate::utils::{ constants::HOME_LOG_DIRECTORY, utils::{ get_home_directory, is_debug_mode } };
+
+use super::config::preferences::Preferences;
 
 pub fn setup_logger(config: &Preferences) -> Result<(), fern::InitError> {
-    // Create a logs directory if it doesn't exist
-    fs::create_dir_all("logs")?;
-
-    // Generate a timestamp for the log file name
+    dotenv().ok();
+    let debug = is_debug_mode();
     let timestamp = Local::now().format("%Y-%m-%d");
-    let log_file_name = format!("logs/{}.log", timestamp);
 
-    // Print a message before setting up the logger
-    println!("Setting up logger for file: {}", log_file_name);
+    let logs_directory = if debug {
+        // Create the logs directory in the root directory
+        let logs_path = format!("logs");
+        fs::create_dir_all(&logs_path)?;
+
+        logs_path
+    } else {
+        // Use home directory for logs if not in debug mode
+        let logs_path = format!("{}/{}", get_home_directory(), HOME_LOG_DIRECTORY);
+        fs::create_dir_all(&logs_path)?;
+
+        logs_path
+    };
+
+    let log_file_name = format!("{}/{}.log", logs_directory, timestamp);
+
 
     // Open the file in append mode or create if it doesn't exist
     let log_file = OpenOptions::new().create(true).append(true).open(&log_file_name)?;
