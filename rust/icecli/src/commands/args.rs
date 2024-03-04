@@ -5,6 +5,7 @@ use crate::{
     commands::video::args::VideoCommand,
     commands::view::args::ViewCommand,
     commands::developer::args::DeveloperCommand,
+    commands::converters::args::ConverterCommand,
 };
 
 // Register the main entity here that handles all the args.
@@ -33,4 +34,8 @@ pub enum EntityCommands {
     /// Developer Commands for testing
     #[clap(alias = "dev", alias = "d", hide = false)]
     Developer(DeveloperCommand),
+
+    /// Converter Commands 
+    #[clap(alias = "convert", alias = "conv", hide = false )]
+    Converter(ConverterCommand),
 }

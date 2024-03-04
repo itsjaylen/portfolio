@@ -1,15 +1,9 @@
 mod commands;
 mod utils;
-mod daemon;
-
-use std::{fs::File, process};
-use std::io::Write;
-
+//mod weatherapi;
 
 use clap::Parser;
-use daemonize::Daemonize;
 use log::{ error, info, debug };
-
 
 use commands::{
     args::{ CommandArgs, EntityCommands },
@@ -17,6 +11,7 @@ use commands::{
     user::handle_user_command,
     video::handle_video_command,
     view::handle_view_command,
+    converters::handle_converter_command,
 };
 
 use crate::utils::{ config::app_config::AppConfig, logger::setup_logger };
@@ -25,6 +20,9 @@ fn main() {
     let config = AppConfig::load_config();
 
     let cli = CommandArgs::parse();
+
+    let loaded_config = AppConfig::load_config();
+    AppConfig::create_config(&loaded_config);
 
     // Register Command modules here
     match cli.entity_type {
@@ -43,41 +41,17 @@ fn main() {
                 info!("Developer command handled successfully");
             }
         }
+        EntityCommands::Converter(converter) => {
+            if let Err(err) = setup_logger(&config.preferences) {
+                eprintln!("Error setting up converter logger: {}", err);
+                return;
+            }
+            if let Err(err) = handle_converter_command(converter) {
+                error!("Failed to handle converter command: {:?}", err);
+                debug!("Test debug");
+            } else {
+                info!("converter command handled successfully");
+            }
+        }
     }
-
-    // Daemonize the process
-    let daemonize = Daemonize::new()
-        .pid_file("/tmp/my_daemon.pid")
-        .privileged_action(|| {
-            // Put your daemon logic here
-            println!("Daemon started");
-
-            // Save the PID to a file
-            if let Ok(mut file) = File::create("/tmp/my_daemon.pid") {
-                if let Err(e) = write!(file, "{}", std::process::id()) {
-                    eprintln!("Error writing PID file: {}", e);
-                }
-            }
-
-            // Your daemon code goes here
-            loop {
-                // Check for some condition that signals the daemon to exit
-                if should_exit() {
-                    println!("Exiting daemon gracefully");
-                    process::exit(0);
-                }
-
-                // Your daemon code continues here
-            }
-        });
-
-
-}
-
-
-// Placeholder function to simulate a condition to exit the daemon
-fn should_exit() -> bool {
-    // Implement your own logic here
-    // For example, return true if a file exists, a specific message is received, etc.
-    true
 }

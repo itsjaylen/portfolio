@@ -1,17 +1,18 @@
 use serde::{Deserialize, Serialize};
 
+
 #[derive(Debug, Deserialize, Serialize)]
-pub struct Server {
+pub struct  WeatherAPI  {
     pub enabled: bool,
-    pub port: u16,
+    pub api_key: String,
     pub debug: bool,
 }
 
-impl Default for Server {
+impl Default for WeatherAPI {
     fn default() -> Self {
-        Server {
+      WeatherAPI {
             enabled: true,
-            port: 1080,
+            api_key: String::from(""),
             debug: true,
         }
     }
