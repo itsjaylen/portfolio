@@ -16,6 +16,10 @@ use commands::{
 
 use crate::utils::{ config::app_config::AppConfig, logger::setup_logger };
 
+// TODO get a database down
+// TODO setup async?
+// TODO get together requests
+
 fn main() {
     let config = AppConfig::load_config();
 

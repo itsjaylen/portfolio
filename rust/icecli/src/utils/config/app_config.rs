@@ -1,18 +1,19 @@
-use std::{ env, fs, path::Path };
+use std::{env, fs, path::Path};
 
-use config::{ Config, File, FileFormat };
+use config::{Config, File, FileFormat};
 use dotenvy::dotenv;
-use serde::{ Deserialize, Serialize };
+use serde::{Deserialize, Serialize};
 
-use crate::utils::{ file_utils::FileUtils, utils::is_debug_mode };
+use crate::utils::{file_utils::FileUtils, utils::is_debug_mode};
 
-use super::{ preferences::Preferences, server::Server, weatherapi::WeatherAPI };
+use super::{database::Database, preferences::Preferences, server::Server, weatherapi::WeatherAPI};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct AppConfig {
     pub preferences: Preferences,
     pub server: Server,
     pub weatherapi: WeatherAPI,
+    pub database: Database,
 }
 
 impl Default for AppConfig {
@@ -21,6 +22,7 @@ impl Default for AppConfig {
             preferences: Preferences::default(),
             server: Server::default(),
             weatherapi: WeatherAPI::default(),
+            database: Database::default(),
         }
     }
 }
@@ -75,10 +77,18 @@ impl AppConfig {
                                 debug: config.get_bool("weatherapi.debug").unwrap_or(false),
                             };
 
+                            let database = Database {
+                                database_url: config
+                                    .get_string("database.database_url")
+                                    .unwrap_or_else(|_| String::from("")),
+                                debug: config.get_bool("database.debug").unwrap_or(false),
+                            };
+
                             return AppConfig {
                                 preferences,
                                 server,
                                 weatherapi,
+                                database,
                             };
                         }
                         Err(e) => {

@@ -1,19 +1,25 @@
-use crate::commands::converters::modules::temperature::{
-    celsius_to_fahrenheit, fahrenheit_to_celsius, TemperatureUnit,
+use crate::commands::converters::modules::{
+    speed::{ConversionResult, SpeedUnit},
+    temperature::{celsius_to_fahrenheit, fahrenheit_to_celsius, TemperatureUnit},
 };
 
 use super::{
     args::{ConverterCommand, ConverterError, ConverterSubcommand},
-    modules::temperature::Temperature,
+    modules::{speed::Speed, temperature::Temperature},
 };
 
 #[allow(unused_variables)]
 pub fn handle_converter_command(converter: ConverterCommand) -> Result<(), ConverterError> {
     let command = converter.command;
     match command {
-        ConverterSubcommand::Temperature(developer) => {
-            if let Err(err) = temperature(developer) {
+        ConverterSubcommand::Temperature(converter) => {
+            if let Err(err) = temperature_converter(converter) {
                 return Err(ConverterError::TemperatureError("Something".to_string()));
+            }
+        }
+        ConverterSubcommand::Speed(converter) => {
+            if let Err(err) = speed_converter(converter) {
+                return Err(ConverterError::SpeedError("Something".to_string()));
             }
         }
     }
@@ -22,7 +28,8 @@ pub fn handle_converter_command(converter: ConverterCommand) -> Result<(), Conve
 }
 
 // Commands ran handlers
-fn temperature(
+// TODO Move this into its own file
+fn temperature_converter(
     converter: Temperature,
 ) -> Result<(), crate::commands::converters::converters::ConverterError> {
     match converter.unit {
@@ -33,6 +40,59 @@ fn temperature(
         TemperatureUnit::F | TemperatureUnit::Fahrenheit => {
             let converted_temperature = fahrenheit_to_celsius(converter.temperature);
             println!("Converted temperature: {}°C", converted_temperature);
+        }
+    }
+
+    Ok(())
+}
+
+fn speed_converter(
+    converter: Speed,
+) -> Result<(), crate::commands::converters::converters::ConverterError> {
+    let converted_unit = SpeedUnit::convert_units(
+        converter.speed,
+        &converter.output_unit.to_string(), 
+        &converter.input_unit,
+        converter.return_json,
+        converter.round_values,
+    );
+
+    if converter.return_json.unwrap_or(false) {
+        match converted_unit {
+            Ok(json_str) => {
+                let result: Result<ConversionResult, serde_json::Error> =
+                    SpeedUnit::deserialize_conversion_result(&json_str);
+
+                match result {
+                    Ok(converted_result) => {
+                        println!("{:?}", converted_result);
+                    }
+                    Err(e) => {
+                        return Err(ConverterError::SpeedError(format!(
+                            "Conversion error: Error deserializing JSON: {}",
+                            e
+                        )));
+                    }
+                }
+            }
+            Err(e) => {
+                return Err(ConverterError::SpeedError(format!(
+                    "Conversion error: Error converting to JSON: {}",
+                    e
+                )));
+            }
+        }
+    } else {
+        match converted_unit {
+            Ok(value) => {
+                println!("{}", value);
+            }
+            Err(e) => {
+                return Err(ConverterError::SpeedError(format!(
+                    "Conversion error: {}",
+                    e
+                )));
+            }
         }
     }
 

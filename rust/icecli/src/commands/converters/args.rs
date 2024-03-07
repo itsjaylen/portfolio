@@ -1,6 +1,6 @@
 use clap::{Args, Subcommand};
 
-use super::modules::temperature::Temperature;
+use super::modules::{speed::Speed, temperature::Temperature};
 
 // Register converter subcommand module here
 #[derive(Debug, Args)]
@@ -14,6 +14,9 @@ pub struct ConverterCommand {
 pub enum ConverterSubcommand {
     #[clap(about = "Convert temperatures", alias = "temp")]
     Temperature(Temperature),
+    
+    #[clap(about = "Convert speeds",)]
+    Speed(Speed),
 }
 
 /// Register Errors here
@@ -21,4 +24,5 @@ pub enum ConverterSubcommand {
 #[allow(dead_code)]
 pub enum ConverterError {
     TemperatureError(String),
+    SpeedError(String),
 }

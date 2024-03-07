@@ -1,7 +1,14 @@
-**Todo**
+# INFO
 
-[] Add error handling 
-[] Add Documentation to every module
-[] Add logs
-[] Add more module
-[] Split up the code even more?
+**Config File** `~/.icecli/config.toml`
+
+# Features
+
+## Conversions
+
+- ### Temperature Converter
+  [Temperature Conversion Docs](./src/commands/converters/modules/README.md#temperature-conversion)
+
+# TODO
+
+- [ ] Redo all readme files
