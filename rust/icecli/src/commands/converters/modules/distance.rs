@@ -2,64 +2,65 @@ use clap::{Args, ValueEnum, ValueHint};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-// The types of speed units
 #[derive(Debug, Clone, ValueEnum)]
-pub enum SpeedUnit {
-    Mph,
-    Kph,
-    Knots,
-    MetersPerSecond,
-    FeetPerSecond,
+pub enum DistanceUnit {
+    Meters,
+    Kilometers,
+    Inches,
+    Feet,
+    Miles,
+    Millimeters,
+    Centimeters,
 }
 
 /// For if the unit is converted to json
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConversionResult {
-    pub converted_speed: f64,
+    pub converted_distance: f64,
     pub output_unit: String,
 }
 
 /// Format the unit type so it's the default
-impl fmt::Display for SpeedUnit {
+impl fmt::Display for DistanceUnit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            SpeedUnit::Mph => write!(f, "mph"),
-            SpeedUnit::Kph => write!(f, "kph"),
-            SpeedUnit::Knots => write!(f, "knots"),
-            SpeedUnit::MetersPerSecond => write!(f, "m/s"),
-            SpeedUnit::FeetPerSecond => write!(f, "fps"),
+            DistanceUnit::Meters => write!(f, "Meters"),
+            DistanceUnit::Kilometers => write!(f, "Kilometers"),
+            DistanceUnit::Inches => write!(f, "Inches"),
+            DistanceUnit::Feet => write!(f, "Feet"),
+            DistanceUnit::Miles => write!(f, "Miles"),
+            DistanceUnit::Millimeters => write!(f, "Millimeters"),
+            DistanceUnit::Centimeters => write!(f, "Centimeters"),
         }
     }
 }
 
-impl SpeedUnit {
-    /// Convert the given speed value from one unit to another with given args
+impl DistanceUnit {
     pub fn convert_units(
-        speed: f64,
+        distance: f64,
         input_unit: &str,
-        output_unit: &SpeedUnit,
+        output_unit: &DistanceUnit,
         return_json: Option<bool>,
         round_values: Option<bool>,
     ) -> Result<String, serde_json::Error> {
-        // Convert the speed to the specified unit
-        let factor_from = SpeedUnit::unit_conversions(input_unit);
-        let factor_to = SpeedUnit::unit_conversions(output_unit.to_string().as_str());
-        let mut converted_speed = speed * (factor_from / factor_to);
+        let factor_from = DistanceUnit::unit_conversions(input_unit);
+        let factor_to = DistanceUnit::unit_conversions(output_unit.to_string().as_str());
+        let mut converted_distance = distance * (factor_from / factor_to);
 
         // Round the value if round_values is true
         if round_values.unwrap_or(false) {
-            converted_speed = converted_speed.round();
+            converted_distance = converted_distance.round();
         }
 
         // Generate JSON or return the value
         if return_json.unwrap_or(false) {
             let result = ConversionResult {
-                converted_speed: converted_speed,
+                converted_distance: converted_distance,
                 output_unit: output_unit.to_string(),
             };
             serde_json::to_string_pretty(&result)
         } else {
-            Ok(converted_speed.to_string())
+            Ok(converted_distance.to_string())
         }
     }
 
@@ -70,14 +71,16 @@ impl SpeedUnit {
         serde_json::from_str(json_str)
     }
 
-    /// This is now a public static method within the SpeedUnit enum
+    /// Based on 1 mile
     pub fn unit_conversions(unit: &str) -> f64 {
         match unit {
-            "mph" => 1.0,
-            "kph" => 1.60934,
-            "knots" => 0.868976,
-            "m/s" => 0.44704,
-            "fps" => 1.46667,
+            "Meters" => 1609.34,
+            "Kilometers" => 1.60934,
+            "Inches" => 63360.0,
+            "Feet" => 5280.0,
+            "Miles" => 1.0,
+            "Millimeters" => 1609344.0,
+            "Centimeters" => 160934.4,
             _ => {
                 println!("Unsupported unit: {}", unit);
                 1.0 // Default to 1.0 for unsupported units
@@ -86,45 +89,43 @@ impl SpeedUnit {
     }
 }
 
-/// The speed unit args
 #[derive(Debug, Clone, Args)]
-#[clap(after_help = "\x1b[1mEXAMPLES:\x1b[0m
-    - \x1b[1mConvert 50 kph to mph use:\x1b[0m
-      --speed 50 --input-unit kph --output-unit mph
-    - \x1b[1mConvert 100 meters per second to knots:\x1b[0m
-      --speed 100 --input-unit m/s --output-unit knots
-      \x1b[4m\x1b[1mNote:\x1b[0m\x1b[0m You can customize the command with different speed values and units.")]
-pub struct Speed {
-    /// The speed unit being converted
+#[clap(
+    after_help = "\x1b[1mEXAMPLES:\x1b[0m\n
+    - \x1b[1mConvert 50 miles to km use:\x1b[0m 
+        --distance 50 --input-unit miles --output-unit kilometers 
+"
+)]
+pub struct Distance {
     #[arg(
         short,
         long,
         ignore_case(true),
         value_hint(ValueHint::Unknown),
         required(true),
-        help = "The speed value"
+        help = "The distance value"
     )]
-    pub speed: f64,
+    pub distance: f64,
 
-    /// The speed unit being inputted
+    /// The distance unit being inputted
     #[arg(
         short = 'i',
         long = "input-unit",
         ignore_case(true),
-        default_value("mph"),
-        help = "Input unit of speed (default: mph)"
+        default_value("Miles"),
+        help = "Input unit of speed (default: Miles)"
     )]
-    pub input_unit: SpeedUnit,
+    pub input_unit: DistanceUnit,
 
-    /// The speed unit the value is being converted to
+    /// The distance unit the value is being converted to
     #[arg(
         short = 'o',
         long = "output-unit",
         ignore_case(true),
-        default_value("kph"),
-        help = "Output unit of speed (default: kph)"
+        default_value("Kilometers"),
+        help = "Output unit of speed (default: Kilometers)"
     )]
-    pub output_unit: SpeedUnit,
+    pub output_unit: DistanceUnit,
 
     /// Arg to check if you want to return as json
     #[arg(
