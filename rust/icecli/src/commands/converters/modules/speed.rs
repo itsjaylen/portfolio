@@ -2,6 +2,8 @@ use clap::{Args, ValueEnum, ValueHint};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+use crate::commands::converters::units::Unit;
+
 // The types of speed units
 #[derive(Debug, Clone, ValueEnum)]
 pub enum SpeedUnit {
@@ -34,34 +36,6 @@ impl fmt::Display for SpeedUnit {
 
 impl SpeedUnit {
     /// Convert the given speed value from one unit to another with given args
-    pub fn convert_units(
-        speed: f64,
-        input_unit: &str,
-        output_unit: &SpeedUnit,
-        return_json: Option<bool>,
-        round_values: Option<bool>,
-    ) -> Result<String, serde_json::Error> {
-        // Convert the speed to the specified unit
-        let factor_from = SpeedUnit::unit_conversions(input_unit);
-        let factor_to = SpeedUnit::unit_conversions(output_unit.to_string().as_str());
-        let mut converted_speed = speed * (factor_from / factor_to);
-
-        // Round the value if round_values is true
-        if round_values.unwrap_or(false) {
-            converted_speed = converted_speed.round();
-        }
-
-        // Generate JSON or return the value
-        if return_json.unwrap_or(false) {
-            let result = ConversionResult {
-                converted_speed: converted_speed,
-                output_unit: output_unit.to_string(),
-            };
-            serde_json::to_string_pretty(&result)
-        } else {
-            Ok(converted_speed.to_string())
-        }
-    }
 
     /// Cleans the json object
     pub fn deserialize_conversion_result(
@@ -69,13 +43,15 @@ impl SpeedUnit {
     ) -> Result<ConversionResult, serde_json::Error> {
         serde_json::from_str(json_str)
     }
+}
 
-    /// This is now a public static method within the SpeedUnit enum
-    pub fn unit_conversions(unit: &str) -> f64 {
+// Implement the `Unit` trait for `SpeedUnit`
+impl Unit for SpeedUnit {
+    fn unit_conversions(unit: &str) -> f64 {
         match unit {
             "mph" => 1.0,
             "kph" => 1.60934,
-            "knots" => 0.868976,
+            "knots" => 0.8689762,
             "m/s" => 0.44704,
             "fps" => 1.46667,
             _ => {

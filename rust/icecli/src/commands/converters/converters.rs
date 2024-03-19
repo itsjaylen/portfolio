@@ -7,11 +7,11 @@ use crate::commands::converters::modules::{
     temperature::{celsius_to_fahrenheit, fahrenheit_to_celsius, TemperatureUnit},
 };
 
+use super::units::Unit;
 use super::{
     args::{ConverterCommand, ConverterError, ConverterSubcommand},
     modules::{distance::Distance, speed::Speed, temperature::Temperature},
 };
-
 
 #[allow(unused_variables)]
 pub fn handle_converter_command(converter: ConverterCommand) -> Result<(), ConverterError> {
@@ -33,7 +33,7 @@ pub fn handle_converter_command(converter: ConverterCommand) -> Result<(), Conve
         ConverterSubcommand::Distance(converter) => {
             if let Err(err) = distance_converter(converter) {
                 let error_message = err.to_string();
-                return Err(ConverterError::DistanceError(error_message))
+                return Err(ConverterError::DistanceError(error_message));
             }
         }
     }
@@ -67,7 +67,7 @@ fn speed_converter(
     let converted_unit = SpeedUnit::convert_units(
         converter.speed,
         &converter.output_unit.to_string(),
-        &converter.input_unit,
+        &converter.input_unit.to_string(),
         converter.return_json,
         converter.round_values,
     );
@@ -119,12 +119,12 @@ fn distance_converter(
 ) -> Result<(), crate::commands::converters::converters::ConverterError> {
     let converted_unit = DistanceUnit::convert_units(
         converter.distance,
+        &converter.input_unit.to_string(),
         &converter.output_unit.to_string(),
-        &converter.input_unit,
         converter.return_json,
         converter.round_values,
     );
-   
+
     if converter.return_json.unwrap_or(false) {
         match converted_unit {
             Ok(json_str) => {

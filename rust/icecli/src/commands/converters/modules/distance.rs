@@ -2,6 +2,8 @@ use clap::{Args, ValueEnum, ValueHint};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+use crate::commands::converters::units::Unit;
+
 #[derive(Debug, Clone, ValueEnum)]
 pub enum DistanceUnit {
     Meters,
@@ -36,43 +38,17 @@ impl fmt::Display for DistanceUnit {
 }
 
 impl DistanceUnit {
-    pub fn convert_units(
-        distance: f64,
-        input_unit: &str,
-        output_unit: &DistanceUnit,
-        return_json: Option<bool>,
-        round_values: Option<bool>,
-    ) -> Result<String, serde_json::Error> {
-        let factor_from = DistanceUnit::unit_conversions(input_unit);
-        let factor_to = DistanceUnit::unit_conversions(output_unit.to_string().as_str());
-        let mut converted_distance = distance * (factor_from / factor_to);
-
-        // Round the value if round_values is true
-        if round_values.unwrap_or(false) {
-            converted_distance = converted_distance.round();
-        }
-
-        // Generate JSON or return the value
-        if return_json.unwrap_or(false) {
-            let result = ConversionResult {
-                converted_distance: converted_distance,
-                output_unit: output_unit.to_string(),
-            };
-            serde_json::to_string_pretty(&result)
-        } else {
-            Ok(converted_distance.to_string())
-        }
-    }
-
     /// Cleans the json object
     pub fn deserialize_conversion_result(
         json_str: &str,
     ) -> Result<ConversionResult, serde_json::Error> {
         serde_json::from_str(json_str)
     }
+}
 
+impl Unit for DistanceUnit {
     /// Based on 1 mile
-    pub fn unit_conversions(unit: &str) -> f64 {
+    fn unit_conversions(unit: &str) -> f64 {
         match unit {
             "Meters" => 1609.34,
             "Kilometers" => 1.60934,
@@ -90,12 +66,10 @@ impl DistanceUnit {
 }
 
 #[derive(Debug, Clone, Args)]
-#[clap(
-    after_help = "\x1b[1mEXAMPLES:\x1b[0m\n
+#[clap(after_help = "\x1b[1mEXAMPLES:\x1b[0m\n
     - \x1b[1mConvert 50 miles to km use:\x1b[0m 
         --distance 50 --input-unit miles --output-unit kilometers 
-"
-)]
+")]
 pub struct Distance {
     #[arg(
         short,
