@@ -63,7 +63,6 @@ fn temperature_converter(
 fn speed_converter(
     converter: Speed,
 ) -> Result<(), crate::commands::converters::converters::ConverterError> {
-
     let converted_unit = SpeedUnit::convert_units(
         converter.speed,
         &converter.output_unit.to_string(),

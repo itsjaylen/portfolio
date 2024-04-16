@@ -36,8 +36,6 @@ impl fmt::Display for SpeedUnit {
 
 impl SpeedUnit {
     /// Convert the given speed value from one unit to another with given args
-
-    /// Cleans the json object
     pub fn deserialize_conversion_result(
         json_str: &str,
     ) -> Result<ConversionResult, serde_json::Error> {

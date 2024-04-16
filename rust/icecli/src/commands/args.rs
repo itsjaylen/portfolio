@@ -6,7 +6,9 @@ use crate::{
     commands::view::args::ViewCommand,
     commands::developer::args::DeveloperCommand,
     commands::converters::args::ConverterCommand,
+    commands::server::args::ServerCommand,
 };
+
 
 // Register the main entity here that handles all the args.
 #[derive(Parser, Debug)]
@@ -38,4 +40,8 @@ pub enum EntityCommands {
     /// Converter Commands 
     #[clap(alias = "convert", alias = "conv", hide = false )]
     Converter(ConverterCommand),
+
+    /// Server Commands
+    #[clap(alias = "ipc", hide = false )]
+    Server(ServerCommand)
 }

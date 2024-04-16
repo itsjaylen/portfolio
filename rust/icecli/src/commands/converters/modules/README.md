@@ -47,7 +47,13 @@
 
     Converts speeds such as miles per hour, kilometers per hour and etc seamless.
 
-    > in progress
+    ### Examples
+
+    **Example**: ```converter speed --speed 50 -i=kph -o=KNOTS```
+    **_outputs_**: Converted speed: 26.99790597387749
+
+    **Example**: ```converter --speed 50 --input-unit kph --output-unit mph -r true```
+    **_outputs_**: Converted speed 31
 
   - ## Currency Conversion
 
@@ -56,7 +62,14 @@
 
   - ## Distance Conversion
 
-    - [ ] Convert between different units, such as meters, kilometers, inches, feet, miles, etc.
+    Convert between different units, such as meters, kilometers, inches, feet, miles, etc.
+
+    ### Examples
+
+    **Example**: ```converter distance --distance 50 --input-unit miles --output-unit kilometers```
+    **_outputs_**: 80.467
+    **Example**: ```converter distance --distance 50 --input-unit kilometers --output-unit miles -r true```
+    **_outputs_**: 31
 
   - ## Mass Conversion
 

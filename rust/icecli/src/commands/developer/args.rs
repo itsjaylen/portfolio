@@ -1,4 +1,4 @@
-use clap::{ Args, Subcommand };
+use clap::{Args, Subcommand};
 
 use super::modules::tests::Test;
 
@@ -24,7 +24,7 @@ pub enum DeveloperSubcommand {
 #[allow(dead_code)]
 pub enum DeveloperError {
     TestError,
-    TriggerError(String), 
+    TriggerError(String),
     FileError(String),
-    ConfigError(String),    
+    ConfigError(String),
 }

@@ -67,6 +67,9 @@ impl AppConfig {
                                 enabled: config.get_bool("server.enabled").unwrap_or(false),
                                 port: config.get_int("server.port").unwrap_or(0) as u16,
                                 debug: config.get_bool("server.debug").unwrap_or(false),
+                                address: config
+                                    .get_string("server.address")
+                                    .unwrap_or(true.to_string()),
                             };
 
                             let weatherapi = WeatherAPI {

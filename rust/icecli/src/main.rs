@@ -1,20 +1,21 @@
 mod commands;
+mod daemons;
 mod utils;
-//mod weatherapi;
 
 use clap::Parser;
-use log::{ error, info, debug };
+use log::{error, info};
 
 use commands::{
-    args::{ CommandArgs, EntityCommands },
+    args::{CommandArgs, EntityCommands},
+    converters::handle_converter_command,
     developer::handle_developer_command,
+    server::server::handle_server_command,
     user::handle_user_command,
     video::handle_video_command,
     view::handle_view_command,
-    converters::handle_converter_command,
 };
 
-use crate::utils::{ config::app_config::AppConfig, logger::setup_logger };
+use crate::utils::{config::app_config::AppConfig, logger::setup_logger};
 
 // TODO get a database down
 // TODO setup async?
@@ -40,7 +41,6 @@ fn main() {
             }
             if let Err(err) = handle_developer_command(developer) {
                 error!("Failed to handle developer command: {:?}", err);
-                debug!("Test debug");
             } else {
                 info!("Developer command handled successfully");
             }
@@ -52,9 +52,19 @@ fn main() {
             }
             if let Err(err) = handle_converter_command(converter) {
                 error!("Failed to handle converter command: {:?}", err);
-                debug!("Test debug");
             } else {
                 info!("converter command handled successfully");
+            }
+        }
+        EntityCommands::Server(server) => {
+            if let Err(err) = setup_logger(&config.preferences) {
+                eprintln!("Error setting up server logger: {}", err);
+                return;
+            }
+            if let Err(err) = handle_server_command(server) {
+                error!("Failed to handle server command: {:?}", err);
+            } else {
+                info!("Server command handled successfully");
             }
         }
     }
